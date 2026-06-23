@@ -342,30 +342,84 @@ pub fn compute_mosaic(args: Options) {
     target.lock().unwrap().save(args.output).unwrap();
 }
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>>  {
     let args = Options::parse();
+    let image1 = ImageReader::open("assets/tiles-small/tile-4.png")?
+    .decode()?
+    .into_rgb8();
+
+let image2 = ImageReader::open("assets/tiles-small/tile-1.png")?
+    .decode()?
+    .into_rgb8();
+    let f = unsafe { get_optimal_l1(true, true) };
+    let result = unsafe { f(&image1, &image2) };
+    println!("\nresult: {} ", result);
     compute_mosaic(args);
+    Ok(())
 }
+
 
 #[cfg(test)]
 mod tests {
-    #[test]
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    fn unit_test_x86() {
-        // TODO
-        assert!(false);
-    }
-
+    use super::*;
+    use image::io::Reader as ImageReader;
     #[test]
     #[cfg(target_arch = "aarch64")]
     fn unit_test_aarch64() {
-        // TODO
-        assert!(false);
+        let image1 = ImageReader::open("assets/tiles-small/tile-4.png")
+            .unwrap()
+            .decode()
+            .unwrap()
+            .into_rgb8();
+
+        let image2 = ImageReader::open("assets/tiles-small/tile-1.png")
+            .unwrap()
+            .decode()
+            .unwrap()
+            .into_rgb8();
+
+        let result = unsafe { l1_neon(&image1, &image2) };
+
+        assert_eq!(result,2049);
+
     }
 
     #[test]
-    fn unit_test_generic() {
-        // TODO
-        assert!(false);
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    fn unit_test_x86() {
+        let image1 = ImageReader::open("assets/tiles-small/tile-4.png")
+            .unwrap()
+            .decode()
+            .unwrap()
+            .into_rgb8();
+
+        let image2 = ImageReader::open("assets/tiles-small/tile-1.png")
+            .unwrap()
+            .decode()
+            .unwrap()
+            .into_rgb8();
+
+        let result = unsafe { l1_x86_sse2(&image1, &image2) };
+
+        assert_eq!(result,2049);
     }
+
+    // #[test]
+    // fn unit_test_l1_generic() {
+    //     assert_eq!(l1_generic())
+    //     assert!(false);
+    // }
+    
+    // #[test]
+    // fn unit_test_prepare_target() {
+    //     assert_eq!(prepare_target())
+    //     assert!(false);
+    // }
+    
+    // #[test]
+    // fn unit_test_prepare_tiles() {
+    //     assert_eq!(prepare_tiles(assets/target-small))
+    //     assert!(false);
+    // }
 }
+
