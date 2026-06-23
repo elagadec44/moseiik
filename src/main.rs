@@ -404,11 +404,27 @@ mod tests {
         assert_eq!(result,2049);
     }
 
-    // #[test]
-    // fn unit_test_l1_generic() {
-    //     assert_eq!(l1_generic())
-    //     assert!(false);
-    // }
+    #[test]
+    fn unit_test_l1_generic() {
+        use image::io::Reader as ImageReader;
+
+    let image1 = ImageReader::open("assets/tiles-small/tile-4.png")
+        .unwrap()
+        .decode()
+        .unwrap()
+        .into_rgb8();
+
+    let image2 = ImageReader::open("assets/tiles-small/tile-1.png")
+        .unwrap()
+        .decode()
+        .unwrap()
+        .into_rgb8();
+
+    let f = unsafe { get_optimal_l1(true, true) };
+    let result = unsafe { f(&image1, &image2) };
+
+    assert_eq!(result,2049);
+    }
     
     // #[test]
     // fn unit_test_prepare_target() {
