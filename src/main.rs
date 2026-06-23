@@ -13,6 +13,8 @@ use std::{
 };
 use threadpool::ThreadPool;
 use threadpool_scope::scope_with;
+use sha2::{Sha256, Digest};
+
 
 #[derive(Debug, Parser)]
 struct Size {
@@ -64,6 +66,12 @@ fn count_available_tiles(images_folder: &str) -> i32 {
         Ok(t) => return t.count() as i32,
         Err(_) => return -1,
     };
+}
+
+fn hash_image(img: &RgbImage) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(img.as_raw());
+    format!("{:x}", hasher.finalize())
 }
 
 fn prepare_tiles(images_folder: &str, tile_size: &Size, verbose: bool) -> Result<Vec<RgbImage>, Box<dyn Error>> {
@@ -342,20 +350,9 @@ pub fn compute_mosaic(args: Options) {
     target.lock().unwrap().save(args.output).unwrap();
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>>  {
+fn main() {
     let args = Options::parse();
-    let image1 = ImageReader::open("assets/tiles-small/tile-4.png")?
-    .decode()?
-    .into_rgb8();
-
-let image2 = ImageReader::open("assets/tiles-small/tile-1.png")?
-    .decode()?
-    .into_rgb8();
-    let f = unsafe { get_optimal_l1(true, true) };
-    let result = unsafe { f(&image1, &image2) };
-    println!("\nresult: {} ", result);
     compute_mosaic(args);
-    Ok(())
 }
 
 
@@ -426,16 +423,37 @@ mod tests {
     assert_eq!(result,2049);
     }
     
-    // #[test]
-    // fn unit_test_prepare_target() {
-    //     assert_eq!(prepare_target())
-    //     assert!(false);
-    // }
+    #[test]
+    fn unit_test_prepare_target()-> Result<(), Box<dyn std::error::Error>>{
+        let tile_size = Size { width: 5, height: 5 };
+
+        let img = prepare_target(
+            "assets/tiles-small/tile-4.png",
+            1,
+            &tile_size,
+        )?;
+
+        let hash = hash_image(&img);
+        println!("hash: {}", hash);
+
+        assert_eq!(hash,"308b8b86bd1842ae9395b10cddc99ac647e2189418f8a1581039995951915769");
+        Ok(())
+    }
     
-    // #[test]
-    // fn unit_test_prepare_tiles() {
-    //     assert_eq!(prepare_tiles(assets/target-small))
-    //     assert!(false);
-    // }
+     #[test]
+     fn unit_test_prepare_tiles()  -> Result<(), Box<dyn std::error::Error>> {
+        let tile_size = Size { width: 5, height: 5 };
+
+        let img = prepare_tiles(
+            "assets/tiles-small", 
+            &tile_size,false
+        )?;
+
+
+        let hash = hash_image(&img[0]);
+        assert_eq!(hash,"36d96438caf0b1ef4fb29c5e6fa2775a7af4d7b16457cc94657475e93a21ba85");
+        Ok(())
+
+     }
 }
 
