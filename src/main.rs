@@ -68,7 +68,7 @@ fn count_available_tiles(images_folder: &str) -> i32 {
     };
 }
 
-fn hash_image(img: &RgbImage) -> String {
+ pub fn hash_image(img: &RgbImage) -> String {
     let mut hasher = Sha256::new();
     hasher.update(img.as_raw());
     format!("{:x}", hasher.finalize())
