@@ -37,13 +37,59 @@ mod tests {
     #[test]
     #[cfg(target_arch = "aarch64")]
     fn test_aarch64() {
-        //TODO
-        assert!(false);
+       compute_mosaic(Options {
+       image: String::from("assets/kit.jpeg"),
+       output: String::from("outputCi.png"),
+       tiles: String::from("assets/tiles-small/images"),
+       scaling: 1,
+       tile_size: 25,
+       remove_used: false,
+       verbose: true,
+       simd: false,
+       num_thread: 1,
+   });
+   let img = ImageReader::open("outputCi.png")
+        .unwrap()
+        .decode()
+        .unwrap()
+        .into_rgb8();
+    let hashOutput = hash_image(&img);
+
+    let imggt = ImageReader::open("assets/ground-truth-kit.png")
+        .unwrap()
+        .decode()
+        .unwrap()
+        .into_rgb8();
+    let hashGroundTruth = hash_image(&img);
+    assert_eq!(hashOutput, hashGroundTruth);
     }
 
     #[test]
     fn test_generic() {
-        //TODO
-        assert!(false);
+        compute_mosaic(Options {
+       image: String::from("assets/kit.jpeg"),
+       output: String::from("outputCi.png"),
+       tiles: String::from("assets/tiles-small/images"),
+       scaling: 1,
+       tile_size: 25,
+       remove_used: false,
+       verbose: true,
+       simd: false,
+       num_thread: 1,
+   });
+   let img = ImageReader::open("outputCi.png")
+        .unwrap()
+        .decode()
+        .unwrap()
+        .into_rgb8();
+    let hashOutput = hash_image(&img);
+
+    let imggt = ImageReader::open("assets/ground-truth-kit.png")
+        .unwrap()
+        .decode()
+        .unwrap()
+        .into_rgb8();
+    let hashGroundTruth = hash_image(&img);
+    assert_eq!(hashOutput, hashGroundTruth);
     }
 }
