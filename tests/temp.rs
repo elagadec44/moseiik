@@ -30,7 +30,7 @@ mod tests {
         .decode()
         .unwrap()
         .into_rgb8();
-    let hashGroundTruth = hash_image(&img);
+    let hashGroundTruth = hash_image(&imggt);
     assert_eq!(hashOutput, hashGroundTruth);
     }
 
@@ -60,7 +60,7 @@ mod tests {
         .decode()
         .unwrap()
         .into_rgb8();
-    let hashGroundTruth = hash_image(&img);
+    let hashGroundTruth = hash_image(&imggt);
     assert_eq!(hashOutput, hashGroundTruth);
     }
 
@@ -68,7 +68,7 @@ mod tests {
     fn test_generic() {
         compute_mosaic(Options {
        image: String::from("assets/kit.jpeg"),
-       output: String::from("outputCi.png"),
+       output: String::from("outputGeneric.png"),
        tiles: String::from("assets/tiles-small/images"),
        scaling: 1,
        tile_size: 25,
@@ -77,7 +77,7 @@ mod tests {
        simd: false,
        num_thread: 1,
    });
-   let img = ImageReader::open("outputCi.png")
+   let img = ImageReader::open("outputGeneric.png")
         .unwrap()
         .decode()
         .unwrap()
@@ -89,7 +89,7 @@ mod tests {
         .decode()
         .unwrap()
         .into_rgb8();
-    let hashGroundTruth = hash_image(&img);
+    let hashGroundTruth = hash_image(&imggt);
     assert_eq!(hashOutput, hashGroundTruth);
     }
 }
